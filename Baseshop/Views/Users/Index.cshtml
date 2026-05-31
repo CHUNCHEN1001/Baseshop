@@ -1,0 +1,84 @@
+﻿@model IEnumerable<UsersDto>
+
+@{
+    ViewData["Title"] = "Account Management";
+}
+
+<style>
+    .search-box { border: 1px solid gray; padding: 10px; margin-bottom: 20px; }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th, .data-table td { border: 1px solid black; padding: 5px; text-align: left; }
+</style>
+
+<h2>Account Management</h2>
+
+<div class="search-box">
+    <form asp-action="Index" method="get">
+        <span>帳號:</span>
+        <input type="text" name="account" value="@Context.Request.Query["account"]" />
+        
+        <span>Email:</span>
+        <input type="text" name="email" value="@Context.Request.Query["email"]" />
+        
+        <br /><br />
+
+        <span>最後修改日期區間:</span>
+        <input type="date" name="startDate" value="@Context.Request.Query["startDate"]" />
+        <span>～</span>
+        <input type="date" name="endDate" value="@Context.Request.Query["endDate"]" />
+
+        <br /><br />
+
+        <input type="submit" value="查詢" class="btn btn-primary" />
+        <a asp-action="Index" class="btn btn-secondary">清除重置</a>
+        <a asp-action="Create" class="btn btn-success">新增</a>
+    </form>
+</div>
+
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>功能</th>
+            <th>
+                @Html.DisplayNameFor(model => model.Account)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Email)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LastUpdatedTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LastUpdatedBy)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model) {
+            <tr>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Account" class="btn btn-secondary">修改</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Account" class="btn btn-danger">刪除</a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Account)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserName)
+                </td>
+                <th>
+                    @Html.DisplayFor(modelItem => item.Email)
+                </th>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LastUpdatedTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LastUpdatedBy)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

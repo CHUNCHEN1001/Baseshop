@@ -1,0 +1,100 @@
+﻿@model IEnumerable<Baseshop.Dtos.ProductsDto>
+
+@{
+    ViewData["Title"] = "商品管理";
+}
+
+<style>
+    .search-box { border: 1px solid gray; padding: 15px; margin-bottom: 20px; }
+    .search-item { display: inline-block; margin-right: 15px; margin-bottom: 10px; }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th, .data-table td { border: 1px solid black; padding: 8px; text-align: left; }
+    .data-table th { background-color: #f2f2f2; }
+</style>
+
+<h2>商品查詢</h2>
+
+<div class="search-box">
+    <form asp-action="Index" method="get">
+        <div class="search-item">
+            <span>商品代碼:</span>
+            <input type="text" name="productId" value="@Context.Request.Query["productId"]" />
+        </div>
+        <div class="search-item">
+            <span>品名:</span>
+            <input type="text" name="name" value="@Context.Request.Query["name"]" />
+        </div>
+        <div class="search-item">
+            <span>最後修改日期區間:</span>
+            <input type="date" name="startDate" value="@Context.Request.Query["startDate"]" />
+            <span>～</span>
+            <input type="date" name="endDate" value="@Context.Request.Query["endDate"]" />
+        </div>
+
+        <div class="search-item">
+            <input type="submit" value="查詢" class="btn btn-primary" />
+            <a asp-action="Index" class="btn btn-secondary">清除重置</a>
+            @if (User.IsInRole("System") || User.IsInRole("Admin") || User.IsInRole("Shop"))
+                {
+                    <a asp-action="Create" class="btn btn-success">新增</a>
+                }
+            </div>
+    </form>
+</div>
+
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Category)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LastUpdatedTime)
+            </th>
+            @if (User.IsInRole("System") || User.IsInRole("Admin") || User.IsInRole("Shop"))
+            {
+                <th>操作</th>   
+            }
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProductId)
+            </td>
+            <td>
+                <a asp-action="Details" asp-route-id="@item.ProductId">
+                    @Html.DisplayFor(modelItem => item.Name)
+                </a>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Category)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastUpdatedTime)
+            </td>
+            @if (User.IsInRole("System") || User.IsInRole("Admin") || User.IsInRole("Shop"))
+                {
+                <td>
+                <a asp-action="Edit" asp-route-id="@item.ProductId" class="btn btn-secondary">修改</a> |
+                <a asp-action="Delete" asp-route-id="@item.ProductId" class="btn btn-danger">刪除</a>
+            </td>
+                    
+                }
+        </tr>
+}
+    </tbody>
+</table>
