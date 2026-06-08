@@ -252,3 +252,4 @@ D:\Code\.net core\Baseshop\Baseshop\bin\Debug\net8.0\Microsoft.Extensions.Cachin
 D:\Code\.net core\Baseshop\Baseshop\bin\Debug\net8.0\Microsoft.Extensions.Logging.dll
 D:\Code\.net core\Baseshop\Baseshop\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
 D:\Code\.net core\Baseshop\Baseshop\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
+D:\Code\.net core\Baseshop\Baseshop\obj\Debug\net8.0\Baseshop.sourcelink.json

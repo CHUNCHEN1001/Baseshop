@@ -13,8 +13,10 @@ using System.Threading.Tasks;
 
 namespace Baseshop.Controllers
 {
-    [Authorize(Roles = "System,Admin")]
-    public class UsersController : Controller
+    //[Authorize(Roles = "System,Admin")]
+    [ApiController]
+    [Route("api/[controller]")]
+    public class UsersController : ControllerBase
     {
         private readonly WebContext _context;
         private readonly IUsersService _usersService;
@@ -25,116 +27,82 @@ namespace Baseshop.Controllers
             _usersService = usersService;
         }
 
-        // GET: Users
-        public async Task<IActionResult> Index(string account, string email, DateTime? startDate, DateTime? endDate)
+        // GET: api/users
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<UsersDto>>> GetUsers([FromQuery] string? account, [FromQuery] string? email, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
         {
+            account = string.IsNullOrWhiteSpace(account) ? null : account.Trim();
+            email = string.IsNullOrWhiteSpace(email) ? null : email.Trim();
+
             var result = await _usersService.GetUsers(account, email, startDate, endDate);
 
-            return View(result);
-        }
-
-        // GET: Users/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: Users/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(UsersCreateDto user)
-        {
-            if (ModelState.IsValid)
+            if (result == null)
             {
-                await _usersService.CreateUser(user);
-
-                return RedirectToAction(nameof(Index));
+                return Ok(new List<UsersDto>());
             }
-            return View(user);
+
+            return Ok(result);
         }
 
-        // GET: Users/Edit/5
-        public async Task<IActionResult> Edit(string id)
+        // POST: api/users
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] UsersCreateDto user)
         {
-            if (id == null)
+
+            await _usersService.CreateUser(user);
+
+            return CreatedAtAction(nameof(GetUserById), new { id = user.Account }, user);
+        }
+
+        // GET: api/users/{id}
+        // 說明：依識別碼查詢單一使用者。此為 API 標準設計，取代原先的 Edit(GET) 與 Delete(GET) 畫面邏輯
+        [HttpGet("{id}")]
+        public async Task<ActionResult<UsersDto>> GetUserById(string id)
+        {
+            if (string.IsNullOrEmpty(id))
             {
-                return NotFound();
+                return BadRequest("識別碼不得為空");
             }
 
             var user = await _usersService.EditGetUser(id);
 
             if (user == null)
             {
-                return NotFound();
+                return NotFound($"找不到帳號為 {id} 的使用者");
             }
 
-            return View(user);
+            return Ok(user);
         }
 
-        // POST: Users/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, UsersEditDto user)
+        // PUT: api/users/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Edit(string id, [FromBody] UsersEditDto user)
         {
             if (id != user.Account)
             {
-                return NotFound();
+                return BadRequest("網址 ID 與資料內容的帳號不符");
             }
 
-            if (ModelState.IsValid)
-            {
-                var userName = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+            var userName = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+            await _usersService.EditUser(id, user, userName);
 
-                await _usersService.EditUser(id, user, userName);
-                
-                return RedirectToAction(nameof(Index));
-            }
-
-            return View(user);
+            return NoContent(); // 成功修改，標準回傳 204 No Content
         }
 
-        // GET: Users/Delete/5
+        // DELETE: api/users/{id}
+        [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var user = await (from a in _context.Users
-                              where a.Account == id
-                              select new UsersDto
-                              {
-                                  Account = a.Account,
-                                  UserName = a.UserName,
-                                  Email = a.Email,
-                                  Password = a.Password,
-                                  Role = a.Role,
-                                  LastUpdatedTime = a.LastUpdatedTime,
-                                  LastUpdatedBy = a.LastUpdatedBy
-                              }).SingleOrDefaultAsync();
-
+            var user = await _context.Users.FindAsync(id);
             if (user == null)
             {
-                return NotFound();
+                return NotFound($"找不到帳號為 {id} 的使用者，無法刪除");
             }
 
-            return View(user);
-        }
-
-        // POST: Users/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
-        {
-            var user = await _context.Users.FindAsync(id);
-            if (user != null)
-            {
-                _context.Users.Remove(user);
-            }
-
+            _context.Users.Remove(user);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return NoContent(); // 成功刪除，標準回傳 204 No Content
         }
 
         private bool UserExists(string id)

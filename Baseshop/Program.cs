@@ -8,22 +8,24 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllers();
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/Products"; // 未登入會導向此頁
-        options.AccessDeniedPath = "/Products"; // 沒有權限會導向此頁
-        //options.ExpireTimeSpan = TimeSpan.FromSeconds(2); //登入的期限
-    });
+//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+//    .AddCookie(options =>
+//    {
+//        options.LoginPath = "/Products"; // 未登入會導向此頁
+//        options.AccessDeniedPath = "/Products"; // 沒有權限會導向此頁
+//        //options.ExpireTimeSpan = TimeSpan.FromSeconds(2); //登入的期限
+//    });
 
-builder.Services.AddAuthorization(options =>
-{
-    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
-});
+//builder.Services.AddAuthorization(options =>
+//{
+//    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+//        .RequireAuthenticatedUser()
+//        .Build();
+//});
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddDbContext<WebContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("WebDatabase")));
@@ -48,8 +50,10 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Products}/{action=Index}/{id?}");
+//app.MapControllerRoute(
+//    name: "default",
+//    pattern: "{controller=Products}/{action=Index}/{id?}");
+
+app.MapControllers();
 
 app.Run();
