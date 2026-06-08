@@ -1,0 +1,15 @@
+#.vs/
+.vs/
+
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+*.pdb
+*.suo
+*.user
+*.userprefs
+*.vshost.exe
+*.vshost.exe.config
+*.manifest
+*.spec
