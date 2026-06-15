@@ -66,6 +66,8 @@ namespace Baseshop.Controllers
                                     Name = reader["Name"].ToString(),
                                     Category = reader["Category"].ToString(),
                                     Status = (ProductStatus)Convert.ToInt32(reader["Status"]),
+                                    StockQuantity = Convert.ToInt32(reader["StockQuantity"]),    
+                                    ImagePath = reader["ImagePath"].ToString(),
                                     LastUpdatedTime = reader["LastUpdatedTime"] as DateTime?,
                                     LastUpdatedBy = reader["LastUpdatedBy"]?.ToString()
                                 });
@@ -90,6 +92,8 @@ namespace Baseshop.Controllers
                                 Name = row["Name"].ToString(),
                                 Category = row["Category"].ToString(),
                                 Status = (ProductStatus)Convert.ToInt32(row["Status"]),
+                                StockQuantity = Convert.ToInt32(row["StockQuantity"]),
+                                ImagePath = row["ImagePath"].ToString(),
                                 LastUpdatedTime = row["LastUpdatedTime"] == DBNull.Value ? null : (DateTime?)row["LastUpdatedTime"],
                                 LastUpdatedBy = row["LastUpdatedBy"]?.ToString()
                             });
