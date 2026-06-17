@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Baseshop.Controllers
 {
-    //[Authorize(Roles = "System,Admin")]
+    [Authorize(Roles = "System,Admin")]
     [ApiController]
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
@@ -28,6 +28,7 @@ namespace Baseshop.Controllers
         }
 
         // GET: api/users
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UsersDto>>> GetUsers([FromQuery] string? account, [FromQuery] string? email, [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate)
         {

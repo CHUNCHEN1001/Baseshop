@@ -105,6 +105,7 @@ namespace Baseshop.Controllers
         }
 
         // GET: api/products/5
+        [Authorize(Roles = "System,Admin,Store")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProductDetails(string id)
         {
@@ -143,7 +144,7 @@ namespace Baseshop.Controllers
 
         //// POST: api/products
         [HttpPost]
-        //[ValidateAntiForgeryToken]
+        [Authorize(Roles = "System,Admin,Store")]
         public async Task<IActionResult> CreateProduct([FromBody] ProductsCreateDto product)
         {
                 Product insert = new Product()
@@ -241,6 +242,7 @@ namespace Baseshop.Controllers
 
         // PUT: api/products/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "System,Admin,Store")]
         public async Task<IActionResult> EditProduct(string id, [FromBody] ProductsEditDto productDto)
         {
             if (id != productDto.ProductId)
@@ -336,6 +338,7 @@ namespace Baseshop.Controllers
 
         // DELETE: api/products/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "System,Admin,Store")]
         public async Task<IActionResult> DeleteProduct(string id)
         {
             var product = await _context.Products.FindAsync(id);

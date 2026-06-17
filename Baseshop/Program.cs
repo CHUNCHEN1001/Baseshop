@@ -2,8 +2,11 @@ using Baseshop.Interface;
 using Baseshop.Models;
 using Baseshop.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +27,22 @@ builder.Services.AddControllers();
 //        .RequireAuthenticatedUser()
 //        .Build();
 //});
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            // 3. 改用 builder.Configuration 讀取 appsettings.json
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidateLifetime = true,
+            // 4. 注意：這裏的金鑰長度一樣必須大於 32 個字元，否則會報前幾題提到的 IDX10720 錯誤
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:KEY"]))
+        };
+    });
 
 builder.Services.AddAuthorization();
 
