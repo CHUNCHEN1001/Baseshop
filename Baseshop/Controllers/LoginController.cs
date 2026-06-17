@@ -1,15 +1,16 @@
 ﻿using Baseshop.Dtos;
 using Baseshop.Models;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace Baseshop.Controllers
 {
     [AllowAnonymous]
-    public class LoginController : Controller
+    [ApiController] 
+    [Route("api/[controller]")] 
+    public class LoginController : ControllerBase
     {
         private readonly WebContext _webContext;
 
@@ -18,80 +19,103 @@ namespace Baseshop.Controllers
             _webContext = webContext;
         }
 
-        public IActionResult Index()
-        {
-            HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return View();
-        }
+        //[HttpPost("jwtLogin")]
+        //public string jwtLogin(LoginDto value)
+        //{
+        //    var user = (from a in _webContext.Users
+        //                where a.Account == value.Account
+        //                && a.Password == value.Password
+        //                select a).SingleOrDefault();
 
+        //    if (user == null)
+        //    {
+        //        return "帳號密碼錯誤";
+        //    }
+        //    else
+        //    {
+
+        //        var claims = new List<Claim>
+        //        {
+        //            new Claim(JwtRegisteredClaimNames.Email, user.Account),
+        //            new Claim("FullName", user.UserName),
+        //            new Claim(JwtRegisteredClaimNames.NameId, user.EmployeeId.ToString())
+        //        };
+
+        //        var role = from a in _todoContext.Roles
+        //                   where a.EmployeeId == user.EmployeeId
+        //                   select a;
+
+        //        foreach (var temp in role)
+        //        {
+        //            claims.Add(new Claim(ClaimTypes.Role, temp.Name));
+        //        }
+
+        //        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:KEY"]));
+
+        //        var jwt = new JwtSecurityToken
+        //        (
+        //            issuer: _configuration["JWT:Issuer"],
+        //            audience: _configuration["JWT:Audience"],
+        //            claims: claims,
+        //            expires: DateTime.Now.AddMinutes(30),
+        //            signingCredentials: new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256)
+        //        );
+
+        //        var token = new JwtSecurityTokenHandler().WriteToken(jwt);
+
+
+        //        return token;
+        //    }
+        //}
+
+        // POST: api/Login
         [HttpPost]
-        public IActionResult Index(LoginDto value)
+        public IActionResult Authenticate([FromBody] LoginDto value) // 4. 明確指定從 Body 接收 JSON
         {
-            if (!ModelState.IsValid)
-            {
-                return View(value);
-            }
+            // 注意：[ApiController] 會自動處理 !ModelState.IsValid，此處不需手動檢查
 
-            var employee = _webContext.Users.FirstOrDefault(e => e.Account.ToLower() == value.Account.ToLower() && e.Password == value.Password);
+            var employee = _webContext.Users.FirstOrDefault(e =>
+                e.Account.ToLower() == value.Account.ToLower() &&
+                e.Password == value.Password);
 
             if (employee != null)
             {
-                var claims = new List<Claim>
+                // TODO: 建議在 Web API 改用 JWT Token。
+                // 這裡先回傳成功訊息與使用者基本資訊
+                return Ok(new
                 {
-                    new Claim(ClaimTypes.NameIdentifier, employee.Account),
-                    new Claim(ClaimTypes.Name, employee.UserName),
-                    new Claim(ClaimTypes.Role, employee.Role)
-                };
-
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
-
-                return RedirectToAction("Index", "Products");
+                    Message = "登入成功",
+                    User = new { employee.Account, employee.UserName, employee.Role }
+                    // Token = "產生的 JWT Token 放在這裡"
+                });
             }
-            else
-            {
-                ViewBag.Message = "帳號或密碼錯誤";
-                return View(value);
-            }
+
+            return BadRequest(new { Message = "帳號或密碼錯誤" }); // 5. 回傳 400 錯誤與 JSON 訊息
         }
 
-        // GET: /Login/Create
-        public IActionResult Create()
+        // POST: api/Login/Create
+        [HttpPost("Create")]
+        public IActionResult Create([FromBody] GuestCreateDto value)
         {
-            return View();
-        }
-
-        // POST: /Login/Create
-        [HttpPost]
-        public IActionResult Create(GuestCreateDto value)
-        {
-            if (ModelState.IsValid)
+            // 1. 檢查帳號是否重複
+            if (_webContext.Users.Any(u => u.Account == value.Account))
             {
-                // 1. 檢查帳號是否重複
-                if (_webContext.Users.Any(u => u.Account == value.Account))
-                {
-                    ModelState.AddModelError("Account", "此帳號已存在");
-                    return View(value);
-                }
-
-                // 2. 轉換 Dto 為 Model 並存檔 (建議實務上要進行密碼雜湊 Hash)
-                var user = new User // 假設您的實體名稱是 User
-                {
-                    Account = value.Account,
-                    UserName = value.UserName,
-                    Email = value.Email,
-                    Password = value.Password,
-                    Role = "Normal"
-                };
-
-                _webContext.Users.Add(user);
-                _webContext.SaveChanges();
-
-                // 註冊成功後導回登入頁，或直接幫他登入
-                return RedirectToAction(nameof(Index));
+                return BadRequest(new { Message = "此帳號已存在" });
             }
-            return View(value);
-        }
 
+            var user = new User
+            {
+                Account = value.Account,
+                UserName = value.UserName,
+                Email = value.Email,
+                Password = value.Password, 
+                Role = "Normal"
+            };
+
+            _webContext.Users.Add(user);
+            _webContext.SaveChanges();
+
+            return Ok(new { Message = "註冊成功" }); // 6. 回傳 200 成功
+        }
     }
 }
