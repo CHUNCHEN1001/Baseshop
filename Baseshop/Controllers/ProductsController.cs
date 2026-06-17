@@ -16,7 +16,6 @@ using System.Threading.Tasks;
 
 namespace Baseshop.Controllers
 {
-    [AllowAnonymous]
     [ApiController]
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
