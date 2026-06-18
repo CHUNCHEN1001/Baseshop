@@ -84,8 +84,7 @@ namespace Baseshop.Controllers
                 return BadRequest("網址 ID 與資料內容的帳號不符");
             }
 
-            var userName = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
-            await _usersService.EditUser(id, user, userName);
+            await _usersService.EditUser(id, user);
 
             return NoContent(); // 成功修改，標準回傳 204 No Content
         }

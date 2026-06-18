@@ -45,7 +45,7 @@ namespace Baseshop.Services
             return await user.SingleOrDefaultAsync();
         }
 
-        public async Task EditUser(string id, UsersEditDto user, string updaterName)
+        public async Task EditUser(string id, UsersEditDto user)
         {
             var update = _context.Users.Find(id);
 
@@ -56,7 +56,7 @@ namespace Baseshop.Services
                 update.Email = user.Email;
                 update.Password = user.Password;
                 update.Role = user.Role;
-                update.LastUpdatedBy = updaterName;
+                update.LastUpdatedBy = user.LastUpdatedBy;
                 update.LastUpdatedTime = DateTime.Now;
 
                 await _context.SaveChangesAsync();

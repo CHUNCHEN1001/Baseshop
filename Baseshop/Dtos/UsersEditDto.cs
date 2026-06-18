@@ -30,5 +30,8 @@ namespace Baseshop.Dtos
         [DisplayName("權限")]
         public string Role { get; set; }
 
+        [DisplayName("最後修改人員")]
+        public string LastUpdatedBy { get; set; }
+
     }
 }

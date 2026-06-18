@@ -11,6 +11,6 @@ namespace Baseshop.Interface
 
         Task<UsersEditDto> EditGetUser(string id);
 
-        Task EditUser(string id, UsersEditDto user, string updaterName);
+        Task EditUser(string id, UsersEditDto user);
     }
 }
