@@ -1,4 +1,5 @@
 ﻿using Baseshop.Enums;
+using Baseshop.ValidationAttributes;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
@@ -12,6 +13,7 @@ namespace Baseshop.Dtos
 
         [Required(ErrorMessage = "品名為必填欄位")]
         [DisplayName("品名")]
+        [Product]
         public string Name { get; set; }
 
         [Required(ErrorMessage = "商品類別為必填欄位")]

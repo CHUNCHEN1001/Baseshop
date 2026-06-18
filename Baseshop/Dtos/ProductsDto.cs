@@ -1,4 +1,5 @@
 ﻿using Baseshop.Enums;
+using Baseshop.ValidationAttributes;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
@@ -7,6 +8,7 @@ namespace Baseshop.Dtos
     public class ProductsDto
     {
         [DisplayName("商品代碼")]
+        [Product]
         public string ProductId { get; set; }
 
         [DisplayName("品名")]

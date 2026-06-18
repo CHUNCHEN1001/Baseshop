@@ -56,7 +56,7 @@ namespace Baseshop.Controllers
                     issuer: _configuration["JWT:Issuer"],
                     audience: _configuration["JWT:Audience"],
                     claims: claims,
-                    expires: DateTime.Now.AddMinutes(1),
+                    expires: DateTime.Now.AddMinutes(30),
                     signingCredentials: new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256)
                 );
 
